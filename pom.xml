@@ -143,117 +143,128 @@
         <artifactId>versions-maven-plugin</artifactId>
         <version>2.2</version>
       </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>sql-maven-plugin</artifactId>
-        <version>1.5</version>
-        <!-- common configuration shared by all executions -->
-        <configuration>
-          <driver>${db.driver}</driver>
-          <url>${db.url}</url>
-          <username>${db.user}</username>
-          <password>${db.password}</password>
-          <!--all executions are ignored if -Ddb.creation.skip=true-->
-          <skip>${db.creation.skip}</skip>
-          <forkMode>always</forkMode>
-          <autocommit>true</autocommit>
-          <encoding>UTF-8</encoding>
-          <orderFile>ascending</orderFile>
-          <onError>abort</onError>
-            <!-- sql:execute -->
-<!-- 
-            <srcFiles>
-              <srcFile>src/main/resources/sql/01-schema.sql</srcFile>
-              <srcFile>src/main/resources/sql/02-data.sql</srcFile>
-            </srcFiles>
- -->
-        </configuration>
-        <executions>
-          <execution>
-            <id>create-schema-data</id>
-            <phase>process-test-resources</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <srcFiles>
-                <srcFile>src/main/resources/sql/01-schema.sql</srcFile>
-                <srcFile>src/main/resources/sql/02-data.sql</srcFile>
-              </srcFiles>
-            </configuration>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql.connector.java.version}</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-
-      <plugin>
-        <groupId>org.jooq</groupId>
-        <artifactId>jooq-codegen-maven</artifactId>
-        <version>3.6.2</version>
-        <!-- common configuration shared by all executions -->
-        <configuration>
-          <jdbc>
-            <driver>${db.driver}</driver>
-            <url>${db.url}</url>
-            <user>${db.user}</user>
-            <password>${db.password}</password>
-          </jdbc>
-          <generator>
-            <name>org.jooq.util.DefaultGenerator</name>
-            <database>
-              <name>org.jooq.util.mysql.MySQLDatabase</name>
-              <inputSchema>${db.schema}</inputSchema>
-              <includes>.*</includes>
-              <excludes></excludes>
-            </database>
-            <generate>
-              <relations>true</relations>
-              <records>true</records>
-              <instanceFields>true</instanceFields>
-              <pojos>false</pojos>
-              <daos>false</daos>
-<!--
-              <deprecated>false</deprecated>
-              <generatedAnnotation>false</generatedAnnotation>
-              <immutablePojos>false</immutablePojos>
-              <interfaces>false</interfaces>
-              <jpaAnnotations>false</jpaAnnotations>
-              <validationAnnotations>false</validationAnnotations>
-              <globalObjectReferences>false</globalObjectReferences>
- -->
-            </generate>
-            <target>
-              <packageName>com.example.jooq.db</packageName>
-              <directory>target/generated-sources/jooq/db</directory>
-            </target>
-          </generator>
-        </configuration>
-        <executions>
-          <execution>
-            <id>generate-source-code</id>
-            <phase>process-test-resources</phase>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql.connector.java.version}</version>
-          </dependency>
-        </dependencies>
-      </plugin>
     </plugins>
 
   </build>
+
+  <profiles>
+    <profile>
+      <id>generate</id>
+      <build>
+        <plugins>
+
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>sql-maven-plugin</artifactId>
+            <version>1.5</version>
+            <!-- common configuration shared by all executions -->
+            <configuration>
+              <driver>${db.driver}</driver>
+              <url>${db.url}</url>
+              <username>${db.user}</username>
+              <password>${db.password}</password>
+              <!--all executions are ignored if -Ddb.creation.skip=true-->
+              <skip>${db.creation.skip}</skip>
+              <forkMode>always</forkMode>
+              <autocommit>true</autocommit>
+              <encoding>UTF-8</encoding>
+              <orderFile>ascending</orderFile>
+              <onError>abort</onError>
+                <!-- sql:execute -->
+<!-- 
+                <srcFiles>
+                  <srcFile>src/main/resources/sql/01-schema.sql</srcFile>
+                  <srcFile>src/main/resources/sql/02-data.sql</srcFile>
+                </srcFiles>
+-->
+            </configuration>
+            <executions>
+              <execution>
+                <id>create-schema-data</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <configuration>
+                  <srcFiles>
+                    <srcFile>src/main/resources/sql/01-schema.sql</srcFile>
+                    <srcFile>src/main/resources/sql/02-data.sql</srcFile>
+                  </srcFiles>
+                </configuration>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.connector.java.version}</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+
+          <plugin>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-codegen-maven</artifactId>
+            <version>3.6.2</version>
+            <!-- common configuration shared by all executions -->
+            <configuration>
+              <jdbc>
+                <driver>${db.driver}</driver>
+                <url>${db.url}</url>
+                <user>${db.user}</user>
+                <password>${db.password}</password>
+              </jdbc>
+              <generator>
+                <name>org.jooq.util.DefaultGenerator</name>
+                <database>
+                  <name>org.jooq.util.mysql.MySQLDatabase</name>
+                  <inputSchema>${db.schema}</inputSchema>
+                  <includes>.*</includes>
+                  <excludes></excludes>
+                </database>
+                <generate>
+                  <relations>true</relations>
+                  <records>true</records>
+                  <instanceFields>true</instanceFields>
+                  <pojos>false</pojos>
+                  <daos>false</daos>
+<!--
+                  <deprecated>false</deprecated>
+                  <generatedAnnotation>false</generatedAnnotation>
+                  <immutablePojos>false</immutablePojos>
+                  <interfaces>false</interfaces>
+                  <jpaAnnotations>false</jpaAnnotations>
+                  <validationAnnotations>false</validationAnnotations>
+                  <globalObjectReferences>false</globalObjectReferences>
+-->
+                </generate>
+                <target>
+                  <packageName>com.example.jooq.db</packageName>
+                  <directory>target/generated-sources/jooq/db</directory>
+                </target>
+              </generator>
+            </configuration>
+            <executions>
+              <execution>
+                <id>generate-source-code</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>generate</goal>
+                </goals>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.connector.java.version}</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
